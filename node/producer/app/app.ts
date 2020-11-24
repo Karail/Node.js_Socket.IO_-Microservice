@@ -12,40 +12,18 @@ import sockets from './sockets';
 import channelRouter from './channel/channel.router';
 import marketRouter from './market/market.router';
 import timeRouter from './time/time.router';
+//Configs
+import { corsConfig } from './config/www.config';
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-    cors: {
-        origin: (_, cb) => cb(null, true),
-        credentials: true,
-        preflightContinue: true,
-        exposedHeaders: [
-            'Access-Control-Allow-Headers',
-            'Access-Control-Allow-Origin, Origin, X-Requested-With, Content-Type, Accept',
-            'X-Password-Expired',
-        ],
-        optionsSuccessStatus: 200,
-    }
-});
+const io = new Server(server, { cors: corsConfig });
 sockets(io);
 
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(
-    cors({
-        origin: (_, cb) => cb(null, true),
-        credentials: true,
-        preflightContinue: true,
-        exposedHeaders: [
-            'Access-Control-Allow-Headers',
-            'Access-Control-Allow-Origin, Origin, X-Requested-With, Content-Type, Accept',
-            'X-Password-Expired',
-        ],
-        optionsSuccessStatus: 200,
-    })
-);
+app.use(cors(corsConfig));
 app.use((req: any, res: any, next) => {
     req.io = io;
     next();
